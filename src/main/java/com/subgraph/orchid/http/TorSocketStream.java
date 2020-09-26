@@ -1,5 +1,6 @@
 package com.subgraph.orchid.http;
 
+import com.subgraph.orchid.TorClient;
 import com.subgraph.orchid.sockets.sslengine.SSLEngineSSLSocket;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +33,8 @@ public abstract class TorSocketStream extends InputStream {
     }
 
     public abstract void executeRequest() throws Exception;
-    
+    public abstract void executeRequest(TorClient client) throws Exception;
+
     protected String getHost(){
         try{
             return new URI(url.replace(" ", "%20")).getHost();

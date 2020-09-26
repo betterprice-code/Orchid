@@ -5,6 +5,7 @@ import com.subgraph.orchid.http.TorClientFactory;
 import com.subgraph.orchid.http.TorSocketStream;
 import com.subgraph.orchid.TorClient;
 import com.subgraph.orchid.sockets.sslengine.SSLEngineSSLSocket;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,27 +14,31 @@ import java.util.List;
 import javax.net.ssl.SSLContext;
 
 public class TorSocketHttpsPost extends TorSocketStream {
-    
-    private TorSocketHttpsPost(String url, List<NameValuePair> params, SSLContext sslContext){
+
+    private TorSocketHttpsPost(String url, List<NameValuePair> params, SSLContext sslContext) {
         super(url, params, sslContext);
     }
-    
-    public static TorSocketHttpsPost getInstance(String url, List<NameValuePair> params, SSLContext sslContext){
+
+    public static TorSocketHttpsPost getInstance(String url, List<NameValuePair> params, SSLContext sslContext) {
         return new TorSocketHttpsPost(url, params, sslContext);
     }
-    
+
     @Override
-    public void executeRequest() throws Exception{
-        TorClient client = TorClientFactory.getTorClient();
+    public void executeRequest() throws Exception {
+        this.executeRequest(TorClientFactory.getTorClient());
+    }
+
+    @Override
+    public void executeRequest(TorClient client) throws Exception {
         socket = client.getSocketFactory().createSocket(getHost(), 80);
         sslSocket = new SSLEngineSSLSocket(socket, sslContext);
-        try{
+        try {
             PrintWriter writer = new PrintWriter(sslSocket.getOutputStream(), true);
             inputStream = sslSocket.getInputStream();
-            writer.println("POST "+getPath()+getQuery()+" HTTP/1.0");
-            writer.println("Host: "+getHost());
+            writer.println("POST " + getPath() + getQuery() + " HTTP/1.0");
+            writer.println("Host: " + getHost());
             writer.println("Content-Type: application/x-www-form-urlencoded");
-            writer.println("Content-Length: "+getParams().length());
+            writer.println("Content-Length: " + getParams().length());
             writer.println("Connection: close");
             writer.println("");
             writer.println(getParams());
@@ -41,25 +46,25 @@ public class TorSocketHttpsPost extends TorSocketStream {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             Thread.sleep(800l);
             int character;
-            try{
-                while((character = inputStream.read())!=-1){
+            try {
+                while ((character = inputStream.read()) != -1) {
                     byteArrayOutputStream.write(character);
                 }
-            } catch(Exception e){
+            } catch (Exception e) {
                 //swallow
                 byteArrayOutputStream.write(-1);
-            } finally{
-                try{
+            } finally {
+                try {
                     inputStream.close();
-                } catch(IOException e){
+                } catch (IOException e) {
                     //Could not close stream
                 }
             }
             inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-            if(!sslSocket.getSession().isValid()){
+            if (!sslSocket.getSession().isValid()) {
                 throw new Exception("SSL Session is not valid. Either import the SSL Certificate; configure ApplicationProperties.setEnforceSslCertificates(false); or configure [TorRequest].setEnforceSslCertificates(false);");
             }
-        } finally{
+        } finally {
             sslSocket.close();
             socket.close();
         }

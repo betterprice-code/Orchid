@@ -1,5 +1,6 @@
 package com.subgraph.orchid.http.get;
 
+import com.subgraph.orchid.TorClient;
 import com.subgraph.orchid.http.TorRequest;
 
 public class TorGetRequest extends TorRequest{
@@ -20,5 +21,16 @@ public class TorGetRequest extends TorRequest{
         }
         
         super.executeRequest();
+    }
+
+    @Override
+    public void executeRequest(TorClient client) throws Exception{
+        if(url.toLowerCase().startsWith("https")){
+            request = TorSocketHttpsGet.getInstance(url, super.getSslContext());
+        } else{
+            request = TorSocketHttpGet.getInstance(url);
+        }
+
+        super.executeRequest(client);
     }
 }
