@@ -23,6 +23,6 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build
+      run: gradle build
     - name: Publish with Gradle
-      run: ./gradlew publish  -Pgpr.user=Andreydemo -Pgpr.key=${{ secrets.GITHUB_TOKEN }}
+      run: gradle publish  -Pgpr.user=Andreydemo -Pgpr.key=${{ secrets.GITHUB_TOKEN }}
