@@ -31,8 +31,8 @@ public class TorClient {
     private final DirectoryDownloaderImpl directoryDownloader;
     private final Dashboard dashboard;
 
-    private boolean isStarted = false;
-    private boolean isStopped = false;
+    private boolean started = false;
+    private boolean stopped = false;
 
     private final CountDownLatch readyLatch;
 
@@ -69,10 +69,10 @@ public class TorClient {
      * Start running the Tor client service.
      */
     public synchronized void start() {
-            if(isStarted) {
+            if(started) {
                     return;
             }
-            if(isStopped) {
+            if(stopped) {
                     throw new IllegalStateException("Cannot restart a TorClient instance.  Create a new instance instead.");
             }
             logger.info("Starting Orchid (version: "+ Tor.getFullVersion() +")");
@@ -82,11 +82,11 @@ public class TorClient {
             if(dashboard.isEnabledByProperty()) {
                     dashboard.startListening();
             }
-            isStarted = true;
+            started = true;
     }
 
     public synchronized void stop() {
-        if(!isStarted || isStopped) {
+        if(!started || stopped) {
             return;
         }
         try {
@@ -101,7 +101,7 @@ public class TorClient {
         } catch (Exception e) {
             logger.warn("Unexpected exception while shutting down TorClient instance.", e);
         } finally {
-            isStopped = true;
+            stopped = true;
         }
     }
 
@@ -133,7 +133,7 @@ public class TorClient {
     }
 
     private synchronized void ensureStarted() {
-        if(!isStarted) {
+        if(!started) {
             throw new IllegalStateException("Must call start() first");
         }
     }
@@ -212,5 +212,13 @@ public class TorClient {
         }  catch (NoSuchMethodError e) {
             logger.info("Skipped check for Unlimited Strength Jurisdiction Policy Files");
         }
+    }
+
+    public boolean isStarted() {
+        return started;
+    }
+
+    public boolean isStopped() {
+        return stopped;
     }
 }
