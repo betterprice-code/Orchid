@@ -13,9 +13,9 @@ public class GrabPost {
 
     public static void main(String[] args) throws Exception {
         try{
-            String url = "http://putsreq.com/pJ0XmJetHeDcMAWgC8gM";
+            String url = "http://2ip.ru";
             List<NameValuePair> params = new ArrayList();
-            params.add(NameValuePair.getInstance("name","tor"));
+         //   params.add(NameValuePair.getInstance("name","tor"));
 
             TorRequest.openTunnel();
             TorRequest request = TorRequest.getInstance(url, params);

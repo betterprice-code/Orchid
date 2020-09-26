@@ -10,8 +10,10 @@ public class GrabSSL {
     
     public static void main(String[] args) throws Exception {
         try{
+            com.demo.ApplicationProperties.setEnforceSslCertificates(false);
             TorRequest.openTunnel();
             TorRequest whatIsMyIpSSL = TorRequest.getInstance("https://wtfismyip.com/json");
+            whatIsMyIpSSL.setEnforceSslCertificates(false);
             whatIsMyIpSSL.executeRequest();
             logger.info(whatIsMyIpSSL.getResponse().getContent());
         } finally{

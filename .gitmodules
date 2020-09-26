@@ -1,3 +1,0 @@
-[submodule "doc/torspec"]
-	path = doc/torspec
-	url = https://git.torproject.org/torspec.git
