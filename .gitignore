@@ -3,6 +3,8 @@
 /build/
 /private/
 
+target
+
 build-revision
 
 *.class
