@@ -13,7 +13,15 @@ repositories {
     mavenCentral()
     jcenter()
 }
-
+task fatJar(type: Jar) {
+	manifest {
+        attributes 'Implementation-Version': version,
+        	'Main-Class': 'com.subgraph.orchid.TorClient'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar 
+}
 
 dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
