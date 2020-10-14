@@ -35,13 +35,13 @@ public class TorSocketHttpsPost extends TorSocketStream {
         try {
             PrintWriter writer = new PrintWriter(sslSocket.getOutputStream(), true);
             inputStream = sslSocket.getInputStream();
-            writer.println("POST " + getPath() + getQuery() + " HTTP/1.0");
-            writer.println("Host: " + getHost());
-            writer.println("Content-Type: application/x-www-form-urlencoded");
-            writer.println("Content-Length: " + getParams().length());
-            writer.println("Connection: close");
-            writer.println("");
-            writer.println(getParams());
+            writer.print("POST " + getPath() + getQuery() + " HTTP/1.0" + HTTP_LS);
+            writer.print("Host: " + getHost() + HTTP_LS);
+            writer.print("Content-Type: application/x-www-form-urlencoded" + HTTP_LS);
+            writer.print("Content-Length: " + getParams().length() + HTTP_LS);
+            writer.print("Connection: close" + HTTP_LS);
+            writer.print(HTTP_LS);
+            writer.print(getParams() + HTTP_LS);
             writer.flush();
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             Thread.sleep(800l);

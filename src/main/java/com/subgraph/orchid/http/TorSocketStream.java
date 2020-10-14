@@ -2,16 +2,20 @@ package com.subgraph.orchid.http;
 
 import com.subgraph.orchid.TorClient;
 import com.subgraph.orchid.sockets.sslengine.SSLEngineSSLSocket;
+
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.util.List;
 import java.util.ArrayList;
-import javax.net.ssl.SSLContext;
+import java.util.List;
 
 public abstract class TorSocketStream extends InputStream {
+
+    public static final String HTTP_LS = "\r\n";
+
     protected final String url;
     protected final List<NameValuePair> params;
     protected InputStream inputStream;
@@ -19,65 +23,66 @@ public abstract class TorSocketStream extends InputStream {
     protected Socket socket;
     protected SSLEngineSSLSocket sslSocket;
     protected final SSLContext sslContext;
-    
-    protected TorSocketStream(String url, SSLContext sslContext){
+
+    protected TorSocketStream(String url, SSLContext sslContext) {
         this.url = url;
         this.params = new ArrayList();
         this.sslContext = sslContext;
     }
-    
-    protected TorSocketStream(String url, List<NameValuePair> params, SSLContext sslContext){
+
+    protected TorSocketStream(String url, List<NameValuePair> params, SSLContext sslContext) {
         this.url = url;
         this.params = params;
         this.sslContext = sslContext;
     }
 
     public abstract void executeRequest() throws Exception;
+
     public abstract void executeRequest(TorClient client) throws Exception;
 
-    protected String getHost(){
-        try{
+    protected String getHost() {
+        try {
             return new URI(url.replace(" ", "%20")).getHost();
-        } catch(Exception e){
+        } catch (Exception e) {
             //swallow
             return null;
         }
     }
-    
-    protected String getPath(){
-        try{
+
+    protected String getPath() {
+        try {
             String path = new URI(url.replace(" ", "%20")).getPath();
-            if(path.isEmpty()){
+            if (path.isEmpty()) {
                 return "/";
-            } else{
+            } else {
                 return path;
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             //swallow
             return "";
         }
     }
-    
-    protected String getParams(){
-        if(params==null){
+
+    protected String getParams() {
+        if (params == null) {
             return "";
-        } else{
+        } else {
             StringBuilder sb = new StringBuilder();
             String ampersand = "";
-            for(NameValuePair param : params){
+            for (NameValuePair param : params) {
                 String name = "";
-                if(param.getName()!=null){
-                    try{
+                if (param.getName() != null) {
+                    try {
                         name = URLEncoder.encode(param.getName(), "UTF-8");
-                    } catch(Exception e){
+                    } catch (Exception e) {
                         //swallow
                     }
                 }
                 String value = "";
-                if(param.getValue()!=null){
-                    try{
+                if (param.getValue() != null) {
+                    try {
                         value = URLEncoder.encode(param.getValue(), "UTF-8");
-                    } catch(Exception e){
+                    } catch (Exception e) {
                         //swallow
                     }
                 }
@@ -87,47 +92,47 @@ public abstract class TorSocketStream extends InputStream {
             return sb.toString();
         }
     }
-    
-    protected String getQuery(){
-        try{
+
+    protected String getQuery() {
+        try {
             String query = new URI(url.replace(" ", "+")).getQuery();
-            if(query.isEmpty()){
+            if (query.isEmpty()) {
                 return "";
             } else {
-                return "?"+query;
+                return "?" + query;
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             //swallow
             return "";
         }
     }
 
     @Override
-    public int read() throws IOException{
-        if(inputStream==null){
+    public int read() throws IOException {
+        if (inputStream == null) {
             return -1;
         }
-        try{
+        try {
             return inputStream.read();
-        } catch(Exception e){
+        } catch (Exception e) {
             return -1;
         }
     }
 
     @Override
     public void close() {
-        try{
+        try {
             inputStream.close();
-        } catch(IOException e){
+        } catch (IOException e) {
             //Could not close input stream. Probably already closed.
-        } catch(NullPointerException e){
+        } catch (NullPointerException e) {
             //The request probubally failed 
         } finally {
-            try{
-                if(socket!=null){
+            try {
+                if (socket != null) {
                     socket.close();
                 }
-            } catch(IOException e){
+            } catch (IOException e) {
                 //Could not close socket
             }
         }

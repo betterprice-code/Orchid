@@ -280,8 +280,8 @@ public class ConsensusDocumentImpl implements ConsensusDocument {
         logger.debug("trustedAuthority.toString(): "+trustedAuthority.toString());
         logger.debug("signature.getSigningKeyDigest(): "+signature.getSigningKeyDigest());
 	// https://github.com/geo-gs/Orchid/commit/22beeae1b881707491addaba6a7654e9de9f9db1
-        final KeyCertificate certificate = trustedAuthority.getCertificateByFingerprint(signature.getSigningKeyDigest());
-   //     final KeyCertificate certificate = trustedAuthority.getCertificateByAuthority(trustedAuthority.getV3Identity());
+        //final KeyCertificate certificate = trustedAuthority.getCertificateByFingerprint(signature.getSigningKeyDigest());
+        final KeyCertificate certificate = trustedAuthority.getCertificateByAuthority(trustedAuthority.getV3Identity());
 
         if(certificate == null) {
             logger.debug("Missing certificate for signing key: "+ signature.getSigningKeyDigest());

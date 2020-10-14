@@ -1,15 +1,15 @@
 package com.subgraph.orchid.http.get;
 
+import com.subgraph.orchid.TorClient;
 import com.subgraph.orchid.http.TorClientFactory;
 import com.subgraph.orchid.http.TorSocketStream;
-import com.subgraph.orchid.TorClient;
 import com.subgraph.orchid.sockets.sslengine.SSLEngineSSLSocket;
 
-import java.io.PrintWriter;
 import javax.net.ssl.SSLContext;
-import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class TorSocketHttpsGet extends TorSocketStream {
 
@@ -33,10 +33,10 @@ public class TorSocketHttpsGet extends TorSocketStream {
         try {
             PrintWriter writer = new PrintWriter(sslSocket.getOutputStream(), true);
             inputStream = sslSocket.getInputStream();
-            writer.println("GET " + getPath() + getQuery() + " HTTP/1.0");
-            writer.println("Host: " + getHost());
-            writer.println("Connection: close");
-            writer.println("");
+            writer.print("GET " + getPath() + getQuery() + " HTTP/1.0" + HTTP_LS);
+            writer.print("Host: " + getHost() + HTTP_LS);
+            writer.print("Connection: close" + HTTP_LS);
+            writer.print(HTTP_LS);
             writer.flush();
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             Thread.sleep(800l);

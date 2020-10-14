@@ -55,7 +55,7 @@ public class OrchidDemo {
     private static void doTests() {
         testOrchidUsingProxyObject();
         testOrchidUsingSystemPropsProxy();
-        testOrchidUsingSocket();
+        //testOrchidUsingSocket(torClient);
     }
 
     private static void testOrchidUsingProxyObject() {
@@ -65,12 +65,12 @@ public class OrchidDemo {
                 try {
                     //Caution: Native Java DNS lookup will occur outside of the tor network.  
                     //Monitor traffic on port 53 using tcpdump or equivalent.
-                    URL url = new URL("https://wtfismyip.com/");
-                    Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 9150));
+                    URL url = new URL("https://api.ipify.org/");
+                    Proxy proxy = new Proxy(Proxy.Type.SOCKS, new InetSocketAddress("localhost", 9190));
                     HttpURLConnection uc = (HttpURLConnection) url.openConnection(proxy);
                     uc.setConnectTimeout(10000);
                     Document document = Jsoup.parse(IOUtils.toString(uc.getInputStream()));
-                    String result = document.select("div[id=tor").text();
+                    String result = document.select("body").text();
                     logger.info("testOrchidUsingProxyObject: " + result);
                 } catch (Exception ex) {
                     logger.fatal(null, ex);
@@ -88,10 +88,10 @@ public class OrchidDemo {
                     //Caution: Native Java DNS lookup will occur outside of the tor network. 
                     //Monitor traffic on port 53 using tcpdump or equivalent.
                     System.setProperty("socksProxyHost", "127.0.0.1");
-                    System.setProperty("socksProxyPort", "9150");
-                    Document document = Jsoup.connect("https://wtfismyip.com/").get();
-                    String result = document.select("div[id=tor").text();
-                    logger.info("testOrchidUsingSystemPropsProxy: " + result);
+                    System.setProperty("socksProxyPort", "9190");
+                    Document document = Jsoup.connect("https://api.ipify.org").get();
+                    String result = document.select("body").text();
+                    logger.info("testOrchidUsingSystemPropsProxy: " + document.text());
                     System.setProperty("socksProxyHost", "");
                     System.setProperty("socksProxyPort", "");
                 } catch (Exception ex) {

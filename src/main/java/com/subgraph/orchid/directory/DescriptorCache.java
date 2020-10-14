@@ -17,9 +17,9 @@ import com.subgraph.orchid.directory.parsing.DocumentParsingResult;
 import com.subgraph.orchid.logging.Logger;
 import com.subgraph.orchid.misc.GuardedBy;
 
-public abstract class DescriptorCache <T extends Descriptor> {
+public abstract class DescriptorCache<T extends Descriptor> {
     private static final Logger logger = Logger.getInstance(DescriptorCache.class);
-	
+
     private final DescriptorCacheData<T> data;
 
     private final DirectoryStore store;
@@ -49,7 +49,7 @@ public abstract class DescriptorCache <T extends Descriptor> {
     }
 
     public synchronized void initialLoad() {
-        if(initiallyLoaded) {
+        if (initiallyLoaded) {
             return;
         }
         reloadCache();
@@ -66,9 +66,9 @@ public abstract class DescriptorCache <T extends Descriptor> {
     public synchronized void addDescriptors(List<T> descriptors) {
         final List<T> journalDescriptors = new ArrayList<T>();
         int duplicateCount = 0;
-        for(T d: descriptors) {
-            if(data.addDescriptor(d)) {
-                if(d.getCacheLocation() == Descriptor.CacheLocation.NOT_CACHED) {
+        for (T d : descriptors) {
+            if (data.addDescriptor(d)) {
+                if (d.getCacheLocation() == Descriptor.CacheLocation.NOT_CACHED) {
                     journalLength += d.getBodyLength();
                     journalDescriptors.add(d);
                 }
@@ -77,11 +77,11 @@ public abstract class DescriptorCache <T extends Descriptor> {
             }
         }
 
-        if(!journalDescriptors.isEmpty()) {
+        if (!journalDescriptors.isEmpty()) {
             store.appendDocumentList(journalFile, journalDescriptors);
         }
-        if(duplicateCount > 0) {
-            logger.info("Duplicate descriptors added to journal, count = "+ duplicateCount);
+        if (duplicateCount > 0) {
+            logger.info("Duplicate descriptors added to journal, count = " + duplicateCount);
         }
     }
 
@@ -103,7 +103,7 @@ public abstract class DescriptorCache <T extends Descriptor> {
         final ByteBuffer[] buffers = loadCacheBuffers();
         loadCacheFileBuffer(buffers[0]);
         loadJournalFileBuffer(buffers[1]);
-        if(!initiallyLoaded) {
+        if (!initiallyLoaded) {
             initiallyLoaded = true;
         }
     }
@@ -119,13 +119,13 @@ public abstract class DescriptorCache <T extends Descriptor> {
 
     private void loadCacheFileBuffer(ByteBuffer buffer) {
         cacheLength = buffer.limit();
-        if(cacheLength == 0) {
+        if (cacheLength == 0) {
             return;
         }
         final DocumentParser<T> parser = createDocumentParser(buffer);
         final DocumentParsingResult<T> result = parser.parse();
-        if(result.isOkay()) {
-            for(T d: result.getParsedDocuments()) {
+        if (result.isOkay()) {
+            for (T d : result.getParsedDocuments()) {
                 d.setCacheLocation(Descriptor.CacheLocation.CACHED_CACHEFILE);
                 data.addDescriptor(d);
             }
@@ -135,27 +135,27 @@ public abstract class DescriptorCache <T extends Descriptor> {
 
     private void loadJournalFileBuffer(ByteBuffer buffer) {
         journalLength = buffer.limit();
-        if(journalLength == 0) {
+        if (journalLength == 0) {
             return;
         }
         final DocumentParser<T> parser = createDocumentParser(buffer);
         final DocumentParsingResult<T> result = parser.parse();
-        if(result.isOkay()) {
+        if (result.isOkay()) {
             int duplicateCount = 0;
-            logger.debug("Loaded "+ result.getParsedDocuments().size() + " descriptors from journal");
-            for(T d: result.getParsedDocuments()) {
+            logger.debug("Loaded " + result.getParsedDocuments().size() + " descriptors from journal");
+            for (T d : result.getParsedDocuments()) {
                 d.setCacheLocation(Descriptor.CacheLocation.CACHED_JOURNAL);
-                if(!data.addDescriptor(d)) {
+                if (!data.addDescriptor(d)) {
                     duplicateCount += 1;
                 }
-            } 
-            if(duplicateCount > 0) {
-                logger.info("Found "+ duplicateCount + " duplicate descriptors in journal file");
             }
-        } else if(result.isInvalid()) {
-            logger.warn("Invalid descriptor data parsing from journal file : "+ result.getMessage());
-        } else if(result.isError()) {
-            logger.warn("Error parsing descriptors from journal file : "+ result.getMessage());			
+            if (duplicateCount > 0) {
+                logger.info("Found " + duplicateCount + " duplicate descriptors in journal file");
+            }
+        } else if (result.isInvalid()) {
+            logger.warn("Invalid descriptor data parsing from journal file : " + result.getMessage());
+        } else if (result.isError()) {
+            logger.warn("Error parsing descriptors from journal file : " + result.getMessage());
         }
     }
 
@@ -170,33 +170,33 @@ public abstract class DescriptorCache <T extends Descriptor> {
     }
 
     private synchronized void maybeRebuildCache() {
-        if(!initiallyLoaded) {
+        if (!initiallyLoaded) {
             return;
         }
 
         droppedBytes += data.cleanExpired();
 
-        if(!shouldRebuildCache()) {
+        if (!shouldRebuildCache()) {
             return;
         }
         rebuildCache();
     }
 
     private boolean shouldRebuildCache() {
-        if(journalLength < 16384) {
+        if (journalLength < 16384) {
             return false;
         }
-        if(droppedBytes > (journalLength + cacheLength) / 3) {
+        if (droppedBytes > (journalLength + cacheLength) / 3) {
             return true;
         }
-        if(journalLength > (cacheLength / 2)) {
+        if (journalLength > (cacheLength / 2)) {
             return true;
         }
         return false;
     }
 
     private void rebuildCache() {
-        synchronized(store) {
+        synchronized (store) {
             store.writeDocumentList(cacheFile, data.getAllDescriptors());
             store.removeCacheFile(journalFile);
         }
